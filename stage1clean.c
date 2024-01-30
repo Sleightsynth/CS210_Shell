@@ -10,7 +10,10 @@ int main(void) {
 	char *prompt = "shell $ "; 	//prompt preceding user input
 	char input[512]; 		//input from user
 	char *check_input = ""; 	//used in comparsions to check user input
+	char *path = getenv("HOME");
 	
+	chdir(getenv("HOME"));
+
 	//infinte loop, terminates when conditional is tripped
 	while (1) {
 		
