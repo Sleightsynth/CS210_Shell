@@ -3,6 +3,9 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <libgen.h> // for cd Stage 4
+
+static void shell_cd(const char *path); // functional prototype, will add to header file once completed.
 
 int main(void) {
 	
@@ -31,8 +34,15 @@ int main(void) {
 		char* token = strtok(check_input, delim);	//new variable to store the first token
 		char* tokenArray[256]; 				//new array to store all the tokens from input
 		int i = 0; 					//counter to use in conditional loops and to get elements of tokenArray
-		
-		//while loop to print the tokens, stops when token = NULL
+
+        // if statement to implement cd function.
+        if (strncmp(token, "cd", 2) == 0 && token[2] == '\0') {
+            path = &token[3]; // uses character after CD function for address and sets to path.
+            shell_cd(path); // uses copied address and shell_cd function to change path.
+            continue;
+        }
+
+        //while loop to print the tokens, stops when token = NULL
 		while (token != NULL) {
 			tokenArray[i] = token; 			//add token to tokenArray
 			printf("{%s}\n", tokenArray[i]); 	//print current element of token array
@@ -67,3 +77,43 @@ int main(void) {
 	return (0);
 	
 }
+
+static void shell_cd(const char *path) {
+
+    int result = 0; //initialise result to 0.
+
+    // handles case if path is NULL or ".".
+    if (path == NULL || strcmp(path, ".") == 0) {
+        char* buf = getcwd(NULL,0); //retrieves current working directory.
+        if (buf == NULL) {
+            perror("Failed to retrieve current working directory."); //prints error message if path is null.
+            return;
+        }
+        printf("%s\n", buf); //prints current working directory.
+        free(buf); // frees memory for buf after use.
+    // handles case if path is "..".
+    } else if ((strcmp(path, "..") == 0)) {
+        //Move to parent directory.
+        char *buf = getcwd(NULL, 0); //retrieves current working directory.
+        if (buf == NULL) {
+            perror("Failed to retrieve current working directory."); //prints error message if unable to retrieve current working directory.
+            return;
+        }
+        //changes to parent directory.
+        result = chdir(dirname(buf));
+        free(buf);
+        if (result != 0) {
+            perror("Failed to move to parent directory."); //prints error message if unable to move to parent directory.
+            return;
+        }
+    } else {
+        // changes to specified directory.
+        result = chdir(path);
+    }
+
+    // confirms if directory was changed successfully.
+    if (result != 0) {
+        perror("Failed to change directory."); // prints an error message if directory was not changed.
+    }
+}
+
