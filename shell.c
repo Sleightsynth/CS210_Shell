@@ -34,14 +34,14 @@ int main(void) {
 		char* token = strtok(check_input, delim);	//new variable to store the first token
 		char* tokenArray[256]; 				//new array to store all the tokens from input
 		int i = 0; 					//counter to use in conditional loops and to get elements of tokenArray
-
+/*
         // if statement to implement cd function.
         if (strncmp(token, "cd", 2) == 0 && token[2] == '\0') {
             path = &token[3]; // uses character after CD function for address and sets to path.
             shell_cd(path); // uses copied address and shell_cd function to change path.
             continue;
         }
-
+*/
         //while loop to print the tokens, stops when token = NULL
 		while (token != NULL) {
 			tokenArray[i] = token; 			//add token to tokenArray
