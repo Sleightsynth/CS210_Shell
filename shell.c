@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <libgen.h> // for cd Stage 4
 
-static void shell_cd(const char *path); // functional prototype, will add to header file once completed.
+//static void shell_cd(const char *path); // functional prototype, will add to header file once completed.
 
 int main(void) {
 	
@@ -77,7 +77,7 @@ int main(void) {
 	return (0);
 	
 }
-
+/*
 static void shell_cd(const char *path) {
 
     int result = 0; //initialise result to 0.
@@ -116,4 +116,4 @@ static void shell_cd(const char *path) {
         perror("Failed to change directory."); // prints an error message if directory was not changed.
     }
 }
-
+*/
