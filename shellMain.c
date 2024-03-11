@@ -7,6 +7,9 @@ int main(void) {
 	char *path = getUserPath();	//saves original path from user
 	char *history[HISTORY_SIZE];
 	int historyCount = 0;
+
+	aliasEntry aliasList[10];
+	int aliases = 0;
 	
 	setHomeDirectory(); //sets directory to users home directory
 	loadHistory(history, &historyCount);
@@ -54,7 +57,7 @@ int main(void) {
 			token = strtok(NULL, delim); 		//moves onto next token
 		}
 		
-		if (internalCommands(tokenArray, i, history, historyCount) < 1) {
+		if (internalCommands(tokenArray, i, history, historyCount, aliasList, &aliases) < 1) {
 			continue;
 		}
 		
