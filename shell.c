@@ -26,7 +26,7 @@ void printPrompt() {
 }
 
 //
-int internalCommands(char* tokenArray[], int i, char* history[], int historyCount) {
+int internalCommands(char* tokenArray[], int i, char* history[], int historyCount, aliasEntry aliasList[], int* aliases) {
 
 	if (strcmp(tokenArray[0], "getpath") == 0) {
 		if (i == 1) {
@@ -63,11 +63,12 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
 
     else if (strcmp(tokenArray[0], "alias") == 0) {
         if (i == 1) {
-            showAliases(aliasList, aliases);
-            return aliases;
+            showAliases(aliasList, *aliases);
+			printf("aliases = %d\n", *aliases);
+            return (0);
         }
         if (i > 2) {
-        	char* command = malloc(512);
+        	char command[512] = "";
 			
         	for (int o = 2; o < i; o++) {
         		strcat(command, tokenArray[o]);
@@ -75,16 +76,17 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
         			strcat(command, " ");
         		}
         	}
-            aliases = addAlias(tokenArray[1], command, aliasList, aliases);
-            return aliases;
+			printf("command = %s\n", command);
+            *aliases = addAlias(tokenArray[1], command, aliasList, aliases);
+            return (0);
         } else {
             perror("Invalid input, Please enter an Alias name and Command.");
             return(-1);
         }
     } else if (strcmp(tokenArray[0], "unalias") == 0) {
         if (i == 2) {
-            removeAlias(tokenArray[1],aliasList, &aliases);
-            return aliases;
+            removeAlias(tokenArray[1],aliasList, aliases);
+            return (0);
         } else {
             perror("Invalid input, Please enter an Alias to remove.");
         }
@@ -369,17 +371,17 @@ void showAliases(aliasEntry aliasList[], int count) {
     }
 }
 
-int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int count){
-    if(isAlias(newAlias, aliasList, 1, count)) {
-        for(int i = 0; i < count; i++) {
+int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
+    if(isAlias(newAlias, aliasList, 1, *count)) {
+        for(int i = 0; i < *count; i++) {
             if (strcmp(aliasList[i].alias, newAlias) == 0) {
                 free(aliasList[i].command);
                 aliasList[i].command = malloc(strlen(command) + 1);
                 strcpy(aliasList[i].command, command);
-                return count;
+                return *count;
             }
         }
-        return count;
+        return *count;
     }
     else {
         aliasEntry *alias = malloc(sizeof(aliasEntry));
@@ -389,10 +391,10 @@ int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int count){
         strcpy(alias->alias, newAlias);
         strcpy(alias->command, command);
 
-        aliasList[count] = *alias;
-        aliasList[count].ptr = alias;
-        count++;
-        return count;
+        aliasList[*count] = *alias;
+        aliasList[*count].ptr = alias;
+        (*count)++;
+        return *count;
     }
 }
 
