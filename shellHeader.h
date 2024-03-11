@@ -11,15 +11,12 @@ typedef struct aliasEntry {
     char *alias;
     char *command;
     struct aliasEntry *ptr;
-}aliasEntry; // Struct for Alias
-
-aliasEntry aliasList[10];
-int aliases;
+} aliasEntry; // Struct for Alias
 
 void setHomeDirectory();
 char* getUserPath();
 void printPrompt();
-int internalCommands(char* tokenArray[], int i, char* history[], int historyCount);
+int internalCommands(char* tokenArray[], int i, char* history[], int historyCount, aliasEntry aliasList[], int* aliases);
 int externalCommands(char* tokenArray[], int i);
 void restorePath(char* path);
 void getPath();
@@ -33,5 +30,5 @@ void loadHistory(char* history[], int* count);
 int updateAlias (char *command, aliasEntry aliasList[], int count);
 int isAlias(char *string, aliasEntry aliasList[], int value, int count);
 void showAliases(aliasEntry aliasList[], int count);
-int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int count);
+int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count);
 int removeAlias (char *aliasToRemove, aliasEntry aliasList[], int *count);
