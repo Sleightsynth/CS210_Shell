@@ -428,3 +428,58 @@ int removeAlias (char *aliasToRemove, aliasEntry aliasList[], int *count) {
     }
     return 0;
 }
+
+void saveAlias(aliasEntry aliasList[], int aliases) {
+	setHomeDirectory(); //sets directory to users home directory
+
+	FILE *file; //decleration of file
+	file = fopen(".aliases", "w"); //opens aliases file in write mode
+
+	//loop to write all aliases to file, stops when all aliases have been written to file
+	for (int o = 0; o < aliases; o++) {
+		fprintf(file, "%s=%s\n", aliasList[o].alias, aliasList[o].command); //writes aliases to file
+	
+	}
+
+	fclose(file); //closes file
+}
+
+void loadAlias(aliasEntry aliasList[], int *aliases) {
+
+	char *file_name = ".aliases";
+
+	FILE *file;
+	file = fopen(file_name, "r");
+
+	if (file == NULL) {
+		return;
+	}
+
+	char read_item[512];
+	int o = 0;
+
+	while (o < 512 && fgets(read_item, 512, file) != NULL) {
+		
+		size_t len = strlen(read_item);
+		if (len > 0 && read_item[len-1] == '\n') {
+			read_item[len-1] = '\0';
+		}
+		
+		char *token = strchr(read_item, "=");
+		if (token != NULL) {
+			*token = '\0';
+			aliasList[o].alias = strdup(read_item);
+			aliasList[o].command = strdup(token+1);
+			o++;
+		} else {
+			aliasList[o].alias = strdup("");
+			aliasList[o].command = strdup(read_item);
+			o++;
+		}
+	}
+	
+	*aliases = o;
+	
+	fclose(file);
+	
+}
