@@ -13,6 +13,7 @@ int main(void) {
 	
 	setHomeDirectory(); //sets directory to users home directory
 	loadHistory(history, &historyCount);
+	loadAlias(aliasList, &aliases);
 
 	//infinte loop, terminates when conditional is tripped
 	while (1) {
@@ -80,7 +81,16 @@ int main(void) {
 	for (int i = 0; i < historyCount; i++) {
 		free(history[i]);
 	}
-
+	
+	saveAlias(aliasList, aliases);
+	
+	for (int i = 0; i < aliases; i++) {
+        printf("Alias %d: %s=%s\n", (i+1), aliasList[i].alias, aliasList[i].command);
+        free(aliasList[i].alias);
+        free(aliasList[i].command);
+        //free(aliasList[i]);
+    }
+	
 	return (0);
 	
 }
