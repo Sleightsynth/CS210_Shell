@@ -429,23 +429,6 @@ int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
     }
 }
 
-/*
-int mainAlias(aliasEntry aliasList[], int argc, char **args, int count){
-    int newCount = count;
-    if (argc == 1) {
-        showAliases(aliasList, count);
-        return count;
-    }
-    else if (argc == 3) {
-        newCount = addAlias(args[1],args[2], aliasList, count);
-        return newCount;
-    }
-    else {
-        return count;
-    }
-}
- */
-
 int removeAlias (char *aliasToRemove, aliasEntry aliasList[], int *count) {
     for (int i = 0; i < *count; i++) {
         if (strcmp(aliasList[i].alias, aliasToRemove) == 0) {
