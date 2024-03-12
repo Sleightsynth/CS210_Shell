@@ -5,15 +5,15 @@ int main(void) {
 	char input[512]; 		//input from user
 	char *check_input = ""; 	//used in comparsions to check user input
 	char *path = getUserPath();	//saves original path from user
-	char *history[HISTORY_SIZE];
-	int historyCount = 0;
+	char *history[HISTORY_SIZE]; //makes an array for history of size of the max history defined in header
+	int historyCount = 0; //varaible to hold the number of elements in history array
 
 	aliasEntry aliasList[10];
 	int aliases = 0;
 	
 	setHomeDirectory(); //sets directory to users home directory
-	loadHistory(history, &historyCount);
-	loadAlias(aliasList, &aliases);
+	loadHistory(history, &historyCount); //fills history array from file
+	loadAlias(aliasList, &aliases); //fills alias list from file 
 
 	//infinte loop, terminates when conditional is tripped
 	while (1) {
@@ -29,40 +29,35 @@ int main(void) {
 		}
 
 		check_input[strlen(check_input)-1] = '\0'; 	//takes out the \n (newline) char from end of string
-		//if (strcmp(addToHistory(check_input, history, &historyCount), "") == 0) {
-		//	continue;
-		//}
-		strcpy(check_input, addToHistory(check_input, history, &historyCount));
-		if (strcmp(check_input, "") == 0) {
-			continue;
-		}
-		
 		if (isAlias(check_input, aliasList, 1, aliases)) {
             if (updateAlias(check_input,aliasList,aliases) == 0) {
                 perror("Alias Error.");
             }
         }
+		strcpy(check_input, addToHistory(check_input, history, &historyCount));
+		if (strcmp(check_input, "") == 0) {
+			continue;
+		}
 		
 		char* delim = " \t\n;&><|";			//new variable to be used as a delimiter
 		char* token = strtok(check_input, delim);	//new variable to store the first token
 		char* tokenArray[256]; 				//new array to store all the tokens from input
 		int i = 0; 					//counter to use in conditional loops and to get elements of tokenArray
-
-		//free(check_input);
 		
 		//while loop to print the tokens, stops when token = NULL
 		while (token != NULL) {
-			tokenArray[i] = token; 			//add token to tokenArray
+			tokenArray[i] = token; //add token to tokenArray
 			//printf("{%s}\n", tokenArray[i]); 	//print current element of token array
-			i++; 					//increment i
-			token = strtok(NULL, delim); 		//moves onto next token
+			i++; //increment i
+			token = strtok(NULL, delim); //moves onto next token
 		}
 		
+		//runs internal commands, if statement is used to check if the return value is less than one (meaning an internal command was found)
 		if (internalCommands(tokenArray, i, history, historyCount, aliasList, &aliases) < 1) {
-			continue;
+			continue; //returns to start of loop
 		}
 		
-		externalCommands(tokenArray, i);
+		externalCommands(tokenArray, i); //runs external command using fork and exec
 		
 	}
 	
@@ -71,25 +66,28 @@ int main(void) {
 		printf("\n"); //prints new line to keep display consistent with using "exit" to terminate loop
 	}
 	
-	printf("Leaving shell...\n");
+	printf("Leaving shell...\n"); //exit message
 	
-	setenv("PATH", path, 1);
+	restorePath(path); //restores path to the path before running of shell
 	//getPath();
 
-	saveHistory(history, historyCount);
+	saveHistory(history, historyCount); //saves history to .hist_list file (used for loading at begining of main)
 
+	//frees elements of history from memory
 	for (int i = 0; i < historyCount; i++) {
 		free(history[i]);
 	}
+
+	saveAlias(aliasList, aliases); //saves aliases to .aliases file (used for loading at begining of main)
 	
-	saveAlias(aliasList, aliases);
-	
+	//loop to free elements of aliasList from memory
 	for (int o = 0; o < aliases; o++) {
-        printf("Alias %d: %s=%s\n", (o+1), aliasList[o].alias, aliasList[o].command);
+        //printf("Alias %d: %s=%s\n", (o+1), aliasList[o].alias, aliasList[o].command);
         free(aliasList[o].alias);
         free(aliasList[o].command);
     }
-	
+
+
 	return (0);
 	
 }
