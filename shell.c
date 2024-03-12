@@ -446,7 +446,7 @@ void saveAlias(aliasEntry aliasList[], int aliases) {
 
 void loadAlias(aliasEntry aliasList[], int *aliases) {
 
-	char* file_name = ".aliases";
+	char *file_name = ".aliases";
 
 	FILE *file;
 	file = fopen(file_name, "r");
@@ -456,17 +456,29 @@ void loadAlias(aliasEntry aliasList[], int *aliases) {
 	}
 
 	char read_item[512];
+	int o = 0;
 
-	while (!feof(file) && !ferror(file)) {
-		if (fgets(read_item, 512, file) != NULL) {
-			
-			char *token = strcpy(read_item, "=");
-			if (token != NULL) {
-				*token = '\0';
-				*aliases = addAlias(read_item, (token+1), aliasList, aliases);
-			}
+	while (o < 512 && fgets(read_item, 512, file) != NULL) {
+		
+		size_t len = strlen(read_item);
+		if (len > 0 && read_item[len-1] == '\n') {
+			read_item[len-1] = '\0';
+		}
+		
+		char *token = strchr(read_item, "=");
+		if (token != NULL) {
+			*token = '\0';
+			aliasList[o].alias = strdup(read_item);
+			aliasList[o].command = strdup(token+1);
+			o++;
+		} else {
+			aliasList[o].alias = strdup("");
+			aliasList[o].command = strdup(read_item);
+			o++;
 		}
 	}
+	
+	*aliases = o;
 	
 	fclose(file);
 	
