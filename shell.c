@@ -68,7 +68,6 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
     else if (strcmp(tokenArray[0], "alias") == 0) {
         if (i == 1) {
             showAliases(aliasList, *aliases);
-			printf("aliases = %d\n", *aliases);
             return (0);
         }
         if (i > 2) {
@@ -80,7 +79,6 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
         			strcat(command, " ");
         		}
         	}
-			printf("command = %s\n", command);
             *aliases = addAlias(tokenArray[1], command, aliasList, aliases);
             return (0);
         } else {
@@ -125,7 +123,6 @@ int externalCommands(char* tokenArray[], int i) {
 void restorePath(char* path) {
 
 	setenv("PATH", path, 1);
-	printf("%s\n", getenv("PATH"));
 	return;
 	
 }
@@ -397,15 +394,26 @@ int isAlias(char *string, aliasEntry aliasList[], int value, int count) {
 }
 
 void showAliases(aliasEntry aliasList[], int count) {
+	if (count == 0) {
+		printf("Could not retrive aliases: no current aliases\n");
+		return;
+	}
     for (int i = 0; i < count; i++) {
         printf("%s     %s\n", aliasList[i].alias, aliasList[i].command);
     }
 }
 
 int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
+
+	if (*count == 10) {
+		printf("Could not add alias: number of aliases maxed, try unalias first\n");
+		return *count;
+	}
+
     if(isAlias(newAlias, aliasList, 1, *count)) {
         for(int i = 0; i < *count; i++) {
             if (strcmp(aliasList[i].alias, newAlias) == 0) {
+				printf("Updating alias: %s: '%s' -> '%s'\n", aliasList[i].alias, aliasList[i].command, command);
                 free(aliasList[i].command);
                 aliasList[i].command = malloc(strlen(command) + 1);
                 strcpy(aliasList[i].command, command);
