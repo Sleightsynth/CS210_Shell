@@ -84,11 +84,10 @@ int main(void) {
 	
 	saveAlias(aliasList, aliases);
 	
-	for (int i = 0; i < aliases; i++) {
-        printf("Alias %d: %s=%s\n", (i+1), aliasList[i].alias, aliasList[i].command);
-        free(aliasList[i].alias);
-        free(aliasList[i].command);
-        //free(aliasList[i]);
+	for (int o = 0; o < aliases; o++) {
+        printf("Alias %d: %s=%s\n", (o+1), aliasList[o].alias, aliasList[o].command);
+        free(aliasList[o].alias);
+        free(aliasList[o].command);
     }
 	
 	return (0);
