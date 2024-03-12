@@ -52,8 +52,12 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
 			char* directory = tokenArray[1];
 			changeDirectory(directory);
 			return(0);
+		} else if (i == 1) {
+			//perror("Failed to retrieve current working directory."); //prints error message if path is null.
+			printf("Failed to retrieve current working directory: no directory provided\n");
+			return(-1);
 		} else {
-			perror("Failed to retrieve current working directory."); //prints error message if path is null.
+			printf("Failed to retrieve current working directory: too many directories provided\n");
 			return(-1);
 		}
 	} else if (strcmp(tokenArray[0], "history") == 0) {
@@ -182,7 +186,10 @@ void changeDirectory(const char *directory) {
 
     // confirms if directory was changed successfully.
     if (result != 0) {
-        perror("Failed to change directory"); // prints an error message if directory was not changed.
+		fprintf(stderr, "Failed to change directory: %s: ", directory);
+		perror(0);
+        //printf("Failed to change directory: %s", directory); // prints an error message if directory was not changed.
+		//perror(0);
     }
 }
 
@@ -190,28 +197,35 @@ void changeDirectory(const char *directory) {
 //--calls invokeHistory
 char* addToHistory(char *command, char *history[], int *count) { 
 
+	//checks if command is a history invocation
 	if (command[0] == '!') {
-		return invokeHistory(history, command, *count);
+		return invokeHistory(history, command, *count); //returns the command invocated from history, will return "" on error
 		//strcpy(command, (invokeHistory(history, command, *count)));
-		if (strcmp(command, "") == 0) {
+		if (strcmp(command, "") == 0) { //checks if invokeHistory returned an error
 			return command;
 		}
 	}
 
+	//if statement to check if the current size of history is less than max size
 	if (*count < HISTORY_SIZE) {
-		history[*count] = strdup(command);
-		(*count)++;
-		return history[(*count)-1];
-	} else {
-		for (int i = 0; i < HISTORY_SIZE - 1; i++) {
-			free(history[i]);
-			history[i] = strdup(history[i + 1]);
+
+		history[*count] = strdup(command); 	//sets latest element of history to command provided
+		(*count)++; 						//increments history count, essentially updating size of history
+		return history[(*count)-1]; 		//returns the command that was inputted by user (last thing added to history)
+
+	} else { //if history size == max history size
+
+		//loop to move all elements of history down one listing (i.e. invocation 0 is lost and invocation 1 takes its place)
+		for (int i = 0; i < HISTORY_SIZE - 1; i++) { 
+			free(history[i]); //frees current place in history
+			history[i] = strdup(history[i + 1]); //sets freed place to command one increment ahead of it
 		}
 		
-		history[HISTORY_SIZE - 1] = strdup(command);
+		history[HISTORY_SIZE - 1] = strdup(command); //sets final place in history to command provided by user (history size maxed no need to increment)
 		
 	} 
-	return history[*count-1];
+
+	return history[*count-1]; //returns the command that was inputted by user (last thing added to history)
 }
 
 //function to print every element held in history array
@@ -225,9 +239,18 @@ void showHistory(char* history[], int count) {
 //
 char* invokeHistory(char* history[], char* command, int count) {
 	
-	if (command[0] == '!' && command [1] == '!' && command[2] == '\0') { 
-		if (count == 0) {
-			printf("%s: no previos event found\n", command);
+	if (count == 0) {
+			printf("%s: event not found: history has no contents\n", command);
+			return "";
+	}
+
+	if (command[0] == '!' && command [1] == '!') { 
+		
+		if (command[2] != '\0') {
+			printf("%s: event not found: no arguements expected after '!!'\n", command);
+			return "";
+		} else if (count == 0) {
+			printf("%s: event not found: history has no contents\n", command);
 			return "";
 		}
 		return history[count-1];
@@ -240,26 +263,26 @@ char* invokeHistory(char* history[], char* command, int count) {
 
 		for (int o = 2; o < strlen(command); o++) {
 			if (isalpha(command[o])) {
-				printf("%s: event not found\n", command);
+				printf("%s: event not found: only numbers expected\n", command);
 				return "";
 			}
 		}
 
 		int sub_command = atoi(command+2);
 		if (sub_command <= 0) {
-			printf("%s: event not found\n", command);
+			printf("%s: event not found: arguement must be a negative number\n", command);
 			return "";
 		}
 		if (count - sub_command <= 0) {
-			printf("%s: event not found\n", command);
+			printf("%s: event not found: invocation too low -- (invocation: %d; not in history)\n", command, (count - sub_command));
 			return "";
-		} else return history[(count-1)-sub_command];
+		} else return history[(count)-sub_command];
 
 	} else {
 
 		for (int o = 1; o < strlen(command); o++) {
 			if (isalpha(command[o])) {
-				printf("%s: event not found\n", command);
+				printf("%s: event not found: only numbers expected\n", command);
 				return "";
 			}
 		}
@@ -267,12 +290,17 @@ char* invokeHistory(char* history[], char* command, int count) {
 		int sub_command = atoi(command+1);
 		
 		if (count == 0) {
-			printf("%s: no previos event found\n", command);
+			printf("%s: event not found: history has no contents\n", command);
 			return "";
-		} else if (sub_command <= 0 || sub_command > count) {
-			printf("%s: event not found\n", command);
+		} else if (sub_command <= 0) {
+			printf("%s: event not found: invocation must be a postive number\n", command);
 			return "";
-		} else { return history[sub_command-1];
+		} else if (sub_command > count) {
+			printf("%s: event not found: invocation outwidth history contents (current size: %d)\n", command, count);
+			return "";
+		} else { 
+			
+			return history[sub_command-1];
 
 			/*char* new_command = malloc(strlen(history[count-1]) + 1); 
 			strcpy(new_command, history[sub_command-1]);
@@ -290,7 +318,7 @@ void saveHistory(char* history[], int count) {
 	setHomeDirectory(); //sets directory to users home directory
 
 	FILE *file; //decleration of file
-	file = fopen(".shell_history.hist_list", "w"); //opens history file in write mode
+	file = fopen(".hist_list", "w"); //opens history file in write mode
 
 	//loop to write all contents of history to file, stops when all elements of history have been traversed
 	for (int o = 0; o < count; o++) {
@@ -302,21 +330,24 @@ void saveHistory(char* history[], int count) {
 
 }
 
+//function to load users history -- (fill history array with contents of .hist_list file)
 void loadHistory(char* history[], int* count) {
 
-	char* file_name = ".shell_history.hist_list";
+	char* file_name = ".hist_list"; 
 
-	FILE *file;
-	file = fopen(file_name, "r");
+	FILE *file; //decleration of file
+	file = fopen(file_name, "r"); //opens history file in read mode
 
+	//if statement to detect if file does not exist -- i.e. fopen returns NULL
 	if (file == NULL) {
-		return;
+		return; //does not load anything into history array
 	}
 
-	char read_item[512];
+	char read_item[512]; //varaiable used to read lines from .hist_list file
 
-	while (!feof(file) && !ferror(file)) {
-		if (fgets(read_item, 512, file) != NULL) {
+	//loop to add all lines from file to history, stops when it reaches end of file or there has been an error in reading
+	while (!feof(file) && !ferror(file)) { 
+		if (fgets(read_item, 512, file) != NULL) { //
 			
 			int size = strlen(read_item); //Total size of string
 			char* str = malloc(sizeof(char)*size);
@@ -328,7 +359,7 @@ void loadHistory(char* history[], int* count) {
 		}
 	}
 	
-	fclose(file);
+	fclose(file); //closes file
 	
 }
 
@@ -428,7 +459,6 @@ int removeAlias (char *aliasToRemove, aliasEntry aliasList[], int *count) {
     }
     return 0;
 }
-
 void saveAlias(aliasEntry aliasList[], int aliases) {
 	setHomeDirectory(); //sets directory to users home directory
 
@@ -465,7 +495,7 @@ void loadAlias(aliasEntry aliasList[], int *aliases) {
 			read_item[len-1] = '\0';
 		}
 		
-		char *token = strchr(read_item, "=");
+		char *token = strchr(read_item, '=');
 		if (token != NULL) {
 			*token = '\0';
 			aliasList[o].alias = strdup(read_item);
