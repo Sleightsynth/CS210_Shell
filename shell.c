@@ -25,7 +25,7 @@ void printPrompt() {
 	
 }
 
-//
+//function for internal commands
 int internalCommands(char* tokenArray[], int i, char* history[], int historyCount, aliasEntry aliasList[], int* aliases) {
 
 	if (strcmp(tokenArray[0], "getpath") == 0) {
@@ -73,7 +73,6 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
     else if (strcmp(tokenArray[0], "alias") == 0) {
         if (i == 1) {
             showAliases(aliasList, *aliases);
-			//printf("aliases = %d\n", *aliases);
             return (0);
         }
         if (i > 2) {
@@ -85,7 +84,6 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
         			strcat(command, " ");
         		}
         	}
-			//printf("command = %s\n", command);
             *aliases = addAlias(tokenArray[1], command, aliasList, aliases);
             return (0);
         } else {
@@ -111,17 +109,17 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
 	return(1);
 }
 
-//
+//function for external commands
 int externalCommands(char* tokenArray[], int i) {
 
-	tokenArray[i] = NULL; 	//Null terminator at the end of the loop, allowing our token array to be used in execvp
-	pid_t pid = fork(); 	// creating the child process
+	tokenArray[i] = NULL; 	//null terminator at the end of the loop, allowing our token array to be used in execvp
+	pid_t pid = fork(); 	//creating the child process
 		
 	//conditional to excute child or parent process
 	if (pid < 0) { //neither parent or child - error
 		printf("error\n");
 		return (-1);
-	} else if (pid == 0) { //Child process
+	} else if (pid == 0) { //child process
 		execvp(tokenArray[0], tokenArray); 	//exec to make child process exceute a different process than parent
 		perror(tokenArray[0]); 			  	//returns the exact error from exec, if one has occured
 		exit(1);
@@ -134,8 +132,7 @@ int externalCommands(char* tokenArray[], int i) {
 	
 }
 
-//function to restore the path back to original user path
-//--takes a path as it's only parameter
+//function to restore the path back to original user path, takes a path as it's only parameter
 void restorePath(char* path) {
 
 	printf("Current path -> ");
@@ -155,8 +152,7 @@ void getPath() {
 	
 }
 
-//function to change the user path to value inputted by user
-//--takes a char pointer new_path from user input as only parameter
+//function to change the user path to value inputted by user, takes a char pointer new_path from user input as only parameter
 void setPath(char* new_path) {
 
 	setenv("PATH", new_path, 1);
@@ -167,44 +163,44 @@ void setPath(char* new_path) {
 //function to implement cd functionality, allowing user to change current working directory
 void changeDirectory(const char *directory) {
 
-    int result = 0; //initialise result to 0.
+    int result = 0; //initialise result to 0
 
-    // handles case if path is NULL or ".".
+    //handles case if path is NULL or "."
     if (directory == NULL || strcmp(directory, ".") == 0) {
-        char* buf = getcwd(NULL,0); //retrieves current working directory.
+        char* buf = getcwd(NULL,0); //retrieves current working directory
         if (buf == NULL) {
-            //perror("Failed to retrieve current working directory."); //prints error message if path is null.
+            //perror("Failed to retrieve current working directory."); //prints error message if path is null
 			printf("Failed to retrieve current working directory.");
             return;
         }
-        printf("%s\n", buf); //prints current working directory.
-        free(buf); // frees memory for buf after use.
-    // handles case if path is "..".
+        printf("%s\n", buf); //prints current working directory
+        free(buf); 	//frees memory for buf after use
+    //handles case if path is ".."
+
     } else if ((strcmp(directory, "..") == 0)) {
-        //Move to parent directory.
-        char *buf = getcwd(NULL, 0); //retrieves current working directory.
+        //move to parent directory.
+        char *buf = getcwd(NULL, 0); //retrieves current working directory
         if (buf == NULL) {
-            //perror("Failed to retrieve current working directory."); //prints error message if unable to retrieve current working directory.
+            //perror("Failed to retrieve current working directory."); //prints error message if unable to retrieve current working directory
 			printf("Failed to retrieve current working directory.");
             return;
         }
-        //changes to parent directory.
+        //changes to parent directory
         result = chdir(dirname(buf));
         free(buf);
         if (result != 0) {
-            perror("Failed to move to parent directory."); //prints error message if unable to move to parent directory.
+            perror("Failed to move to parent directory."); //prints error message if unable to move to parent directory
             return;
         }
     } else {
-        // changes to specified directory.
+        //changes to specified directory
         result = chdir(directory);
     }
 
-    // confirms if directory was changed successfully.
+    //confirms if directory was changed successfully.
     if (result != 0) {
 		fprintf(stderr, "Failed to change directory: %s: ", directory);
 		perror(0);
-        //printf("Failed to change directory: %s", directory); // prints an error message if directory was not changed.
-		//perror(0);
+        //printf("Failed to change directory: %s", directory); // prints an error message if directory was not changed
     }
 }
