@@ -54,21 +54,26 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
 			return(0);
 		} else if (i == 1) {
 			//perror("Failed to retrieve current working directory."); //prints error message if path is null.
-			printf("Failed to retrieve current working directory: no directory provided\n");
-			return(-1);
-		} else {
+			setHomeDirectory();
+			return(0);
+		} else if (i > 2) {
 			printf("Failed to retrieve current working directory: too many directories provided\n");
 			return(-1);
 		}
 	} else if (strcmp(tokenArray[0], "history") == 0) {
+		if (i == 1) {
 			showHistory(history, historyCount);
 			return(0);
+		} else {
+			printf("Could not retrieve history: history does not take any parameters\n");
+			return (-1);
+		}
 	}
 
     else if (strcmp(tokenArray[0], "alias") == 0) {
         if (i == 1) {
             showAliases(aliasList, *aliases);
-			printf("aliases = %d\n", *aliases);
+			//printf("aliases = %d\n", *aliases);
             return (0);
         }
         if (i > 2) {
@@ -80,20 +85,28 @@ int internalCommands(char* tokenArray[], int i, char* history[], int historyCoun
         			strcat(command, " ");
         		}
         	}
-			printf("command = %s\n", command);
+			//printf("command = %s\n", command);
             *aliases = addAlias(tokenArray[1], command, aliasList, aliases);
             return (0);
         } else {
-            perror("Invalid input, Please enter an Alias name and Command.");
+            printf("Invalid input, Please enter an Alias name and Command.\n");
             return(-1);
         }
     } else if (strcmp(tokenArray[0], "unalias") == 0) {
-        if (i == 2) {
+		
+		if (*aliases == 0) {
+			printf("Could not remove alias: no current aliases exist\n");
+			return (-1);
+		} else if (i == 2) {
             removeAlias(tokenArray[1],aliasList, aliases);
             return (0);
+        } else if (i == 1) {
+            printf("Invalid input, Please enter an Alias to remove.\n");
+			return (-1);
         } else {
-            perror("Invalid input, Please enter an Alias to remove.");
-        }
+			printf("Could not remove alias: too many arguements provided -- aliases are only one word\n");
+			return (-1);
+		}
     }
 	return(1);
 }
@@ -110,9 +123,10 @@ int externalCommands(char* tokenArray[], int i) {
 		return (-1);
 	} else if (pid == 0) { //Child process
 		execvp(tokenArray[0], tokenArray); 	//exec to make child process exceute a different process than parent
-		perror(tokenArray[0]); 			//returns the exact error from exec, if one has occured
+		perror(tokenArray[0]); 			  	//returns the exact error from exec, if one has occured
 		exit(1);
-	} else { //parent process, shell
+	} else { 
+		//parent process, shell
 		wait(NULL); 				//makes parent process wait for child process to finish it's execution
 	}
 	
@@ -124,8 +138,11 @@ int externalCommands(char* tokenArray[], int i) {
 //--takes a path as it's only parameter
 void restorePath(char* path) {
 
+	printf("Current path -> ");
+	getPath();
 	setenv("PATH", path, 1);
-	printf("%s\n", getenv("PATH"));
+	printf("Restored path -> ");
+	getPath();
 	return;
 	
 }
@@ -143,7 +160,6 @@ void getPath() {
 void setPath(char* new_path) {
 
 	setenv("PATH", new_path, 1);
-	perror("setenv");
 	return;
 	
 }
