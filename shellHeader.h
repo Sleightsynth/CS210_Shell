@@ -34,3 +34,4 @@ int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count);
 int removeAlias (char *aliasToRemove, aliasEntry aliasList[], int *count);
 void saveAlias(aliasEntry aliasList[], int aliases);
 void loadAlias(aliasEntry aliasList[], int *aliases);
+char getAliasCommand(char *string, aliasEntry aliasList[], int count);
