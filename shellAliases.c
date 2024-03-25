@@ -1,11 +1,10 @@
 #include "shellHeader.h"
 
-// Aliases Stage 7 and 8
-// Function to change alias if alias already exists.
+//function to change alias if alias already exists
 int updateAlias (char *command, aliasEntry aliasList[], int count) {
-    //Loops through aliasList[].
+    //loops through aliasList[]
     for (int i = 0; i < count; i++ ) {
-        // if alias is found within array. It will create a temporary variable and update the respective alias to reflect the new command.
+        // if alias is found within array, it will create a temporary variable and update the respective alias to reflect the new command
         if (strcmp(aliasList[i].alias, command) == 0)  {
             char *temp = malloc(strlen(aliasList[i].command) + 1);
             strcpy(temp, aliasList[i].command);
@@ -17,20 +16,20 @@ int updateAlias (char *command, aliasEntry aliasList[], int count) {
     return 0;
 }
 
-//Helper function for addAlias to confirm if Alias exists in the array.
+//helper function for addAlias to confirm if Alias exists in the array
 int isAlias(char *string, aliasEntry aliasList[], int value, int count) {
     int found = 0;
-    // Loops through Alias List
+    //loops through Alias List
     for (int i = 0; i < count; i++) {
         if (value == 1) {
-            // If alias is found in aliasList[], return 1.
+            //if alias is found in aliasList[], return 1
             if (strcmp(aliasList[i].alias, string) == 0) {
                 found = 1;
                 return found;
             }
         }
         else if (value == 2) {
-            // if command is also found in alias list, return 1.
+            //if command is also found in alias list, return 1
             if (strcmp(aliasList[i].command, string) == 0) {
                 found = 1;
                 return found;
@@ -40,6 +39,7 @@ int isAlias(char *string, aliasEntry aliasList[], int value, int count) {
     return found;
 }
 
+//function to get an alias command
 char getAliasCommand(char *string, aliasEntry aliasList[], int count) {
     int found = 0;
     for (int i = 0; i < count; i++) {
@@ -51,24 +51,24 @@ char getAliasCommand(char *string, aliasEntry aliasList[], int count) {
     return found;
 }
 
-// Function to show all aliases on file.
+// function to show all aliases on file
 void showAliases(aliasEntry aliasList[], int count) {
     if (count == 0) {
-        // Print error message if aliasList[] is empty.
+        //print error message if aliasList[] is empty
         printf("Could not retrieve aliases: no current aliases\n");
         return;
     }
     for (int i = 0; i < count; i++) {
-        // Print each alias of the list and their respective commands.
+        //print each alias of the list and their respective commands
         printf("%s     %s\n", aliasList[i].alias, aliasList[i].command);
     }
 }
 
-// Function to add alias to array.
+//function to add alias to array
 int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
 
     if (*count == 10 && isAlias(newAlias, aliasList, 1, *count) != 1) {
-        // if aliasList[] has 10 aliases. This error message will print if user tries to add another.
+        //if aliasList[] has 10 aliases, this error message will print if user tries to add another
         printf("Could not add alias: number of aliases maxed, try unalias first\n");
         return *count;
     }
@@ -89,16 +89,11 @@ int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
 
     printf("command == %s\n", command);
 
-    /*if ((isAlias(command, aliasList, 1, *count) == 1 && isAlias(newAlias, aliasList, 2, *count) == 1) || strcmp(newAlias, command) == 0) {
-        printf("Aliases not added: cycle detected\n");
-        return *count;
-    }*/
-
-        // If Alias exists in aliasList[], if block executes.
+        //if Alias exists in aliasList[], if block executes
     if(isAlias(newAlias, aliasList, 1, *count)) {
-        // Loops through aliasList[]
+        //loops through aliasList[]
         for(int i = 0; i < *count; i++) {
-            // When the alias is found. It is updated with the relevant command.
+            //when the alias is found, it is updated with the relevant command
             if (strcmp(aliasList[i].alias, newAlias) == 0) {
                 printf("Updating alias: %s: '%s' -> '%s'\n", aliasList[i].alias, aliasList[i].command, command);
                 free(aliasList[i].command);
@@ -110,7 +105,7 @@ int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
         return *count;
     }
     else {
-        //Alias is added to aliasList[] and the relevant command.
+        //alias is added to aliasList[] and the relevant command
         aliasEntry *alias = malloc(sizeof(aliasEntry));
         alias->alias = malloc(strlen(newAlias) + 1);
         alias->command = malloc(strlen(command) + 1);
@@ -125,18 +120,18 @@ int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
     }
 }
 
-// Function to remove aliases from file.
+//function to remove an alias from aliasList[] 
 int removeAlias (char *aliasToRemove, aliasEntry aliasList[], int *count) {
-    //Loops through aliasList[]
+    //loops through aliasList[]
     for (int i = 0; i < *count; i++) {
-        //if alias that is to be removed matches one in the aliasList[], Removes the relevant alias and command.
+        //if alias that is to be removed matches one in the aliasList[], removes the relevant alias and command
         if (strcmp(aliasList[i].alias, aliasToRemove) == 0) {
             printf("Removing alias '%s': command == %s\n", aliasToRemove, aliasList[i].command);
             for (int j = i; j < *count - 1; j++) {
                 strcpy(aliasList[j].alias, aliasList[j+1].alias);
                 strcpy(aliasList[j].command, aliasList[j+1].command);
             }
-            // Count decremented to account for removed alias.
+            //count decremented to account for removed alias
             (*count)--;
             return 1;
         }
