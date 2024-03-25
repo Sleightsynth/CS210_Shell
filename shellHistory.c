@@ -74,14 +74,14 @@ char* invokeHistory(char* history[], char* command, int count) {
 				return "";
 			}
 		}
-
+		
 		int sub_command = atoi(command+2);
 		if (sub_command <= 0) {
 			printf("%s: event not found: arguement must be a negative number\n", command);
 			return "";
 		}
-		if (count - sub_command <= 0) {
-			printf("%s: event not found: invocation too low -- (invocation: %d; not in history)\n", command, (count - sub_command));
+		if (count - sub_command < 0) {
+			printf("%s: event not found: invocation too low -- (invocation: %d; not in history)\n", command, (count - sub_command + 1));
 			return "";
 		} else return history[(count)-sub_command];
 
@@ -101,6 +101,9 @@ char* invokeHistory(char* history[], char* command, int count) {
 			return "";
 		} else if (sub_command <= 0) {
 			printf("%s: event not found: invocation must be a postive number\n", command);
+			return "";
+		} else if (sub_command > HISTORY_SIZE) {
+			printf("%s: event not found: invocation outwidth history max size (current max size: %d)\n", command, HISTORY_SIZE);
 			return "";
 		} else if (sub_command > count) {
 			printf("%s: event not found: invocation outwidth history contents (current size: %d)\n", command, count);
