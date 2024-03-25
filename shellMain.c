@@ -36,10 +36,7 @@ int main(void) {
 		
 		if (strcmp(check_input, "") == 0) {
 			continue;
-		} /*else if (strcmp(check_input, " ") == 0 || strcmp(check_input, "\n") == 0 || strcmp(check_input, "\t") == 0 || strcmp(check_input, ";") == 0 || strcmp(check_input, "&") == 0 || strcmp(check_input, ">") == 0 || strcmp(check_input, "<") == 0 || strcmp(check_input, "|") == 0) {
-			printf("%s: is a delimiter, it cannot be used as a command\n", check_input);
-			continue;
-		}*/
+		} 
 		
 		while (isAlias(check_input, aliasList, 1, aliases) == 1) {
 			if (updateAlias(check_input,aliasList,aliases) == 0) {
@@ -55,13 +52,10 @@ int main(void) {
 		char* token = strtok(check_input, delim);	//new variable to store the first token
 		char* tokenArray[256]; 						//new array to store all the tokens from input
 		int i = 0; 									//counter to use in conditional loops and to get elements of tokenArray
-
-		//free(check_input);
 		
 		//while loop to print the tokens, stops when token = NULL
 		while (token != NULL) {
 			tokenArray[i] = token; 				//add token to tokenArray
-			//printf("{%s}\n", tokenArray[i]); 	//print current element of token array
 			i++; 								//increment i
 			token = strtok(NULL, delim); 		//moves onto next token
 		}
@@ -94,7 +88,6 @@ int main(void) {
 	saveAlias(aliasList, aliases);
 	
 	for (int o = 0; o < aliases; o++) {
-        //printf("Alias %d: %s=%s\n", (o+1), aliasList[o].alias, aliasList[o].command);
         free(aliasList[o].alias);
         free(aliasList[o].command);
     }
