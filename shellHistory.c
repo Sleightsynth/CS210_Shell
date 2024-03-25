@@ -1,7 +1,6 @@
 #include "shellHeader.h"
 
-//function to add commands from user in terminal to history 
-//--calls invokeHistory
+//function to add commands from user in terminal to history, calls invokeHistory
 char* addToHistory(char *command, char *history[], int *count) { 
 
 	//checks if command is a history invocation
@@ -43,7 +42,7 @@ void showHistory(char* history[], int count) {
 	}
 }
 
-//
+//function to invoke histroy
 char* invokeHistory(char* history[], char* command, int count) {
 	
 	if (count == 0) {
@@ -61,10 +60,6 @@ char* invokeHistory(char* history[], char* command, int count) {
 			return "";
 		}
 		return history[count-1];
-		
-		/*char* new_command = malloc(strlen(history[count-1]) + 1); 
-		strcpy(new_command, history[count-1]);
-		return strcat(new_command, (command+2));*/
 
 	} else if (command[0] == '!' && command [1] == '-') {
 
@@ -112,54 +107,49 @@ char* invokeHistory(char* history[], char* command, int count) {
 			
 			return history[sub_command-1];
 
-			/*char* new_command = malloc(strlen(history[count-1]) + 1); 
-			strcpy(new_command, history[sub_command-1]);
-			return strcat(new_command, (command+1));*/
-
 		}
 
 	}
 
 }
 
-//function to save all elements of history array to file
+//function to save all elements of history array to .hist_list file
 void saveHistory(char* history[], int count) {
 
-	setHomeDirectory(); //sets directory to users home directory
+	setHomeDirectory(); //sets directory to user's home directory
 
 	FILE *file; //decleration of file
-	file = fopen(".hist_list", "w"); //opens history file in write mode
+	file = fopen(".hist_list", "w"); //opens .hist_list file in write mode
 
 	//loop to write all contents of history to file, stops when all elements of history have been traversed
 	for (int o = 0; o < count; o++) {
 		fprintf(file, "%s\n", history[o]); //writes element of history to file
-		//printf("%s -> added to file\n", history[o]); //temporary print just to see elements that are saved
 	}
 
-	fclose(file); //closes file
+	fclose(file); //closes .hist_list file
 
 }
 
-//function to load users history -- (fill history array with contents of .hist_list file)
+//function to load users history, fill history array with contents of .hist_list file
 void loadHistory(char* history[], int* count) {
 
 	char* file_name = ".hist_list"; 
 
 	FILE *file; //decleration of file
-	file = fopen(file_name, "r"); //opens history file in read mode
+	file = fopen(file_name, "r"); //opens .hist_list file in read mode
 
-	//if statement to detect if file does not exist -- i.e. fopen returns NULL
+	//if statement to detect if file does not exist i.e. fopen returns NULL
 	if (file == NULL) {
 		return; //does not load anything into history array
 	}
 
-	char read_item[512]; //varaiable used to read lines from .hist_list file
+	char read_item[512]; //varaiable used to read lines from file
 
 	//loop to add all lines from file to history, stops when it reaches end of file or there has been an error in reading
 	while (!feof(file) && !ferror(file)) { 
 		if (fgets(read_item, 512, file) != NULL) { //
 			
-			int size = strlen(read_item); //Total size of string
+			int size = strlen(read_item); //total size of string
 			char* str = malloc(sizeof(char)*size);
 			strcpy(str, read_item);
 			
@@ -169,6 +159,6 @@ void loadHistory(char* history[], int* count) {
 		}
 	}
 	
-	fclose(file); //closes file
+	fclose(file); //closes .hist_list file
 	
 }
