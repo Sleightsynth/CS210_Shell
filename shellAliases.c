@@ -87,8 +87,6 @@ int addAlias(char *newAlias, char *command, aliasEntry aliasList[], int* count){
         }
     }
 
-    printf("command == %s\n", command);
-
         //if Alias exists in aliasList[], if block executes
     if(isAlias(newAlias, aliasList, 1, *count)) {
         //loops through aliasList[]
