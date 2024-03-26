@@ -5,11 +5,11 @@ int main(void) {
 	char input[512]; 		//input from user
 	char *check_input = ""; 	//used in comparsions to check user input
 	char *path = getUserPath();	//saves original path from user
-	char *history[HISTORY_SIZE];
-	int historyCount = 0;
+	char *history[HISTORY_SIZE]; //creates array that stores history
+	int historyCount = 0; //creates int that holds the current amount of items in history array
 
-	aliasEntry aliasList[10];
-	int aliases = 0;
+	aliasEntry aliasList[10]; //creates list to store alias entries
+	int aliases = 0; //creates int that holds the current amount of items in alias list
 	
 	setHomeDirectory(); 					//sets directory to users home directory
 	loadHistory(history, &historyCount); 	//loads users history from .hist_list
