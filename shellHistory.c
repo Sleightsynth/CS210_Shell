@@ -45,43 +45,47 @@ void showHistory(char* history[], int count) {
 //function to invoke histroy
 char* invokeHistory(char* history[], char* command, int count) {
 	
+	//if history dose not have any items, don't invoke anything
 	if (count == 0) {
-			printf("%s: event not found: history has no contents\n", command);
-			return "";
+		printf("%s: event not found: history has no contents\n", command); //error message
+		return "";
 	}
 
+	//if user inputs '!!...'
 	if (command[0] == '!' && command [1] == '!') { 
 		
+		//checks if anything was inputted after '!!' returns an error
 		if (command[2] != '\0') {
 			printf("%s: event not found: no arguements expected after '!!'\n", command);
 			return "";
-		} else if (count == 0) {
-			printf("%s: event not found: history has no contents\n", command);
-			return "";
-		}
-		return history[count-1];
+		} 
 
-	} else if (command[0] == '!' && command [1] == '-') {
+		return history[count-1]; //returns the most recent history invocation 
 
+	} else if (command[0] == '!' && command [1] == '-') { //checks if the user is invocating a negative number
+
+		//loop through every character and checks if there is any letters in the string, there should only be numbers
 		for (int o = 2; o < strlen(command); o++) {
-			if (isalpha(command[o])) {
+			if (isalpha(command[o])) { //checks if current character is a letter, returns error
 				printf("%s: event not found: only numbers expected\n", command);
 				return "";
 			}
 		}
 		
-		int sub_command = atoi(command+2);
+		int sub_command = atoi(command+2); //changes everyting after '!-' to a number, will return 0 on invalid input (such as !-<no input>)
+
+		//checks if the sub command <= 0, returns an error if so
 		if (sub_command <= 0) {
 			printf("%s: event not found: arguement must be a negative number\n", command);
 			return "";
-		}
-		if (count - sub_command < 0) {
+		} else if (count - sub_command < 0) { //checks if the current size of history - sub command < 0, returns error
 			printf("%s: event not found: invocation too low -- (invocation: %d; not in history)\n", command, (count - sub_command + 1));
 			return "";
-		} else return history[(count)-sub_command];
+		} else return history[(count)-sub_command]; //return the history invocation of the current history count subtracted by the sub command
 
-	} else {
+	} else { //if the first character of input == '!'
 
+		//loop through every character and checks if there is any letters in the string, there should only be numbers
 		for (int o = 1; o < strlen(command); o++) {
 			if (isalpha(command[o])) {
 				printf("%s: event not found: only numbers expected\n", command);
@@ -150,12 +154,12 @@ void loadHistory(char* history[], int* count) {
 		if (fgets(read_item, 512, file) != NULL) { //
 			
 			int size = strlen(read_item); //total size of string
-			char* str = malloc(sizeof(char)*size);
-			strcpy(str, read_item);
+			char* str = malloc(sizeof(char)*size); //creates a variable to copy read_item to
+			strcpy(str, read_item); //copies content of read_item to str
 			
-			str[size-1] = '\0';
-			history[*count] = strdup(str);
-			(*count)++;
+			str[size-1] = '\0'; //removes \n from end of str
+			history[*count] = strdup(str); //sets current history item to str
+			(*count)++; //increments count
 		}
 	}
 	
