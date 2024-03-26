@@ -125,7 +125,7 @@ int externalCommands(char* tokenArray[], int i) {
 		exit(1);
 	} else { 
 		//parent process, shell
-		wait(NULL); 				//makes parent process wait for child process to finish it's execution
+		wait(NULL); //makes parent process wait for child process to finish it's execution
 	}
 	
 	return (0);
